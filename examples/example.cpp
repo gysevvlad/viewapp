@@ -13,6 +13,6 @@ int main()
         .setPosition(10, 10)
         .setSize(180, 25)
         .setText("");
-    
+
     service.run();
 }
