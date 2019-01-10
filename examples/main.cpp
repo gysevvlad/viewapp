@@ -1,11 +1,7 @@
-﻿#include <iostream>
-
-#include "viewapp/Service.h"
+﻿#include "viewapp/Service.h"
 
 int main()
 {
-    views_service::setlogHandler([](auto & str) { std::clog << str; });
-
     views_service::Service service;
 
     auto & view = service.createView()
@@ -18,6 +14,5 @@ int main()
         .setSize(180, 25)
         .setText("");
     
-    service.run();
     service.run();
 }
