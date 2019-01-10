@@ -13,8 +13,8 @@ namespace views_service::controls
     class EditImpl
     {
     public:
-        ~EditImpl();
         EditImpl(ViewImpl & m_view_impl, Edit & m_edit);
+        ~EditImpl();
     
         void setFont(const Font & font);
     

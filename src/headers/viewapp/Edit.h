@@ -31,11 +31,11 @@ namespace views_service::controls
         EditImpl * getImpl();
 
     private:
-        std::unique_ptr<EditImpl>   m_impl;
-        std::optional<unsigned>     m_width;
-        std::optional<unsigned>     m_height;
-        std::optional<unsigned>     m_x_position;
-        std::optional<unsigned>     m_y_position;
+        std::unique_ptr<EditImpl> m_impl;
+        std::optional<unsigned> m_width;
+        std::optional<unsigned> m_height;
+        std::optional<unsigned> m_x_position;
+        std::optional<unsigned> m_y_position;
         std::optional<std::wstring> m_text;
     };
 }

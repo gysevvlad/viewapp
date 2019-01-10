@@ -5,11 +5,12 @@
 
 #include "helper.h"
 
-#include "ViewImpl.h"
+#include "Service.h"
 #include "View.h"
 #include "ServiceImpl.h"
-#include "Service.h"
+#include "ViewImpl.h"
 #include "EditImpl.h"
+#include "ButtonImpl.h"
 
 using namespace views_service;
 using namespace controls;
@@ -49,7 +50,7 @@ ViewImpl::~ViewImpl()
                 edit.setImpl(nullptr);
             },
             [this](controls::Button & button) {
-                throw std::runtime_error("Button control not released");
+                button.setImpl(nullptr);
             }
         }, control);
     }
@@ -73,7 +74,8 @@ BOOL ViewImpl::OnCreateHandler(HWND hwnd)
                 edit.setImpl(std::move(edit_impl));
             },
             [this](controls::Button & button) {
-                throw std::runtime_error("Button control not released");
+                auto button_impl = std::make_unique<ButtonImpl>(*this, button);
+                button.setImpl(std::move(button_impl));
             }
         }, control);
     }
@@ -90,8 +92,6 @@ void ViewImpl::OnCloseHandler()
 
 HBRUSH ViewImpl::OnCtlColorHandler(HDC hdc, HWND, int)
 {
-    TRACECALL();
-
     SetBkColor(hdc, m_log_background_brush.lbColor);
     return m_background_brush;
 }

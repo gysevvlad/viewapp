@@ -34,7 +34,6 @@ void OnDestroy(HWND hwnd)
 
 HBRUSH OnCtlColor(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 {
-    STRACECALL();
     auto & service_impl = g_window_handle_to_service_impl.at(hwnd).get();
     return service_impl.OnCtlColorHandler(hwnd, hdc, hwndChild, type);
 }
@@ -48,7 +47,6 @@ void OnClose(HWND hwnd)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    STRACELOGGER(" " << message);
     try {
         switch (message)
         {
@@ -156,8 +154,6 @@ void ServiceImpl::OnDestroyHandler(HWND hwnd)
 
     g_window_handle_to_service_impl.erase(hwnd);
 
-
-
     bool is_last_view = std::all_of(m_service.begin(), m_service.end(),
         [](auto & view) {
             return view.getImpl() == nullptr;
@@ -170,11 +166,11 @@ void ServiceImpl::OnDestroyHandler(HWND hwnd)
 
 HBRUSH ServiceImpl::OnCtlColorHandler(HWND hwnd, HDC hdc, HWND hwndChild, int type)
 {
-    TRACECALL();
-
     for (auto & view : m_service) {
-        if (view.getImpl()->getHandle() == hwnd) {
-            return view.getImpl()->OnCtlColorHandler(hdc, hwndChild, type);
+        if (view.getImpl()) {
+            if (view.getImpl()->getHandle() == hwnd) {
+                return view.getImpl()->OnCtlColorHandler(hdc, hwndChild, type);
+            }
         }
     }
     return nullptr;

@@ -16,7 +16,17 @@ Edit::~Edit()
     TRACECALL();
 }
 
-Edit::Edit(Edit &&) noexcept = default;
+Edit::Edit(Edit && other) noexcept :
+    m_impl(std::move(other.m_impl)),
+    m_width(std::move(other.m_width)),
+    m_height(std::move(other.m_height)),
+    m_x_position(std::move(other.m_x_position)),
+    m_y_position(std::move(other.m_y_position)),
+    m_text(std::move(m_text))
+
+{
+    TRACECALL();
+}
 
 /*===========================================================================*/
 
