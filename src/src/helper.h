@@ -5,8 +5,6 @@
 #include <utility>
 #include <functional>
 
-#include "Logger.h"
-
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 
@@ -154,3 +152,6 @@ private:
     const DeviceContext & m_device_context;
     HGDIOBJ m_origin_object;
 };
+
+std::string getLastErrorMessage(std::string_view function_name) noexcept;
+
