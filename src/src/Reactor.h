@@ -27,7 +27,8 @@ public:
      * 
      * [auto register]
      * WM_CREATE message:
-     *   if OnEvent(...) not throws some exception and returns 0 then Reactor registers IEventHandler by HWND
+     *   if IEventHandler::OnEvent(...) not throws some exception 
+     *   and returns 0 then Reactor registers IEventHandler by HWND
      * WM_DESTROY message:
      *   Reactor unregister IEventHandler by HWND
      */
