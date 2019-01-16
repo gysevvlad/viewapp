@@ -1,12 +1,15 @@
 #pragma once
 
 #include <Windows.h>
+#include <string>
 #include <cassert>
 #include <utility>
 #include <functional>
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
+
+std::string getLastErrorMessage(std::string_view function_name) noexcept;
 
 class GDIObject
 {
@@ -153,5 +156,29 @@ private:
     HGDIOBJ m_origin_object;
 };
 
-std::string getLastErrorMessage(std::string_view function_name) noexcept;
+class WindowClass
+{
+public:
+    WindowClass(std::wstring_view class_name, WNDPROC wndproc) :
+        m_class_name(class_name),
+        m_wndproc(wndproc)
+    {
+        WNDCLASSW wc = { 0 };
+        wc.lpfnWndProc = wndproc;
+        wc.hInstance = GetModuleHandleW(nullptr);
+        wc.lpszClassName = m_class_name.data();
 
+        if (!RegisterClassW(&wc)) {
+            std::runtime_error(getLastErrorMessage("RegisterClassW(...)"));
+        }
+    }
+
+    ~WindowClass() noexcept
+    {
+        UnregisterClassW(m_class_name.data(), GetModuleHandleW(nullptr));
+    }
+
+private:
+    std::wstring m_class_name;
+    WNDPROC m_wndproc;
+};

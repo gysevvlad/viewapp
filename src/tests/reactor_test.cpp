@@ -3,66 +3,77 @@
 #include "src/Reactor.h"
 #include "src/helper.h"
 
-HWND createTestWindow(std::wstring_view class_name, void * custom_data = nullptr)
+template<class HoldFunctor>
+class FunctorEventHandler : public Reactor::IEventHandler, HoldFunctor
+{
+public:
+    template<class ParamFunctor>
+    FunctorEventHandler(Reactor & reactor, ParamFunctor && functor) :
+        HoldFunctor(std::forward<ParamFunctor>(functor)),
+        IEventHandler(reactor)
+    {
+
+    }
+
+    virtual LRESULT onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override
+    {
+        return HoldFunctor::operator()(hWnd, message, wParam, lParam);
+    }
+};
+
+template<class Functor>
+FunctorEventHandler(Reactor & reactor, Functor && functor)
+    ->FunctorEventHandler<std::remove_reference_t<Functor>>;
+
+HWND createTestWindow(std::wstring_view class_name, Reactor::IEventHandler * event_handler)
 {
     return CreateWindowW(
         class_name.data(),
         L"test app",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
+        100,
+        100,
+        200,
+        200,
         nullptr, nullptr,
         GetModuleHandleW(nullptr),
-        custom_data);
+        event_handler);
 }
 
 TEST(Reactor, BaseUsage)
 {
-    std::wstring class_name = L"BaseUsage";
-    int expected_return_code = 1234567;
-    Reactor reactor;/*
-    reactor.registerEventHandler(class_name,
-        [expected_return_code] (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) -> LRESULT {
+    auto expected_return_value = 192837465;
+    auto message_counter = 0;
+    Reactor reactor;
+    auto handler = FunctorEventHandler{ reactor,
+        [expected_return_value, &message_counter] (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) -> LRESULT {
             if (message == WM_CREATE) {
+                std::cout << "WM_CREATE" << std::endl;
+                message_counter++;
                 PostMessageW(hWnd, WM_CLOSE, 0, 0);
                 return 0;
-            } 
+            }
+            else if (message == WM_CLOSE) {
+                std::cout << "WM_CLOSE" << std::endl;
+                message_counter++;
+                DestroyWindow(hWnd);
+                return 0;
+            }
             else if (message == WM_DESTROY) {
-                PostQuitMessage(expected_return_code);
+                std::cout << "WM_DESTROY" << std::endl;
+                message_counter++;
+                PostQuitMessage(expected_return_value);
                 return 0;
             }
             else {
                 return DefWindowProcW(hWnd, message, wParam, lParam);
             }
-        });*/
-
-    createTestWindow(class_name);
-    ASSERT_EQ(reactor.handleEvents(), expected_return_code);
-}
-
-TEST(Reactor, OwnedWindowClass)
-{
-    auto class_name = L"OwnedWindowClass";
-    {
-        Reactor reactor;
-        reactor.registerWindowClass(class_name);
-        reactor.registerWindowClass(class_name);
-    }
-    WNDCLASSW wc = { 0 };
-    ASSERT_FALSE(GetClassInfoW(GetModuleHandleW(nullptr), class_name, &wc));
-    ASSERT_EQ(GetLastError(), ERROR_CLASS_DOES_NOT_EXIST);
-}
-
-TEST(Reactor, WindowClassWrongWndProc)
-{
-    auto class_name = L"WindowClassWrongWndProc";
-    WNDCLASSW wc = { 0 };
-    wc.lpfnWndProc = DefWindowProcW;
-    wc.hInstance = GetModuleHandleW(nullptr);
-    wc.lpszClassName = class_name;
-    ASSERT_TRUE(RegisterClassW(&wc));
-    Reactor reactor;
-    ASSERT_ANY_THROW(reactor.registerWindowClass(class_name));
+        }
+    };
+    std::wstring class_name = L"BaseUsage";
+    WindowClass window_class(class_name, Reactor::WndProc);
+    auto window_handle = createTestWindow(class_name, &handler);
+    ASSERT_NE(window_handle, nullptr);
+    ASSERT_EQ(reactor.handleEvents(), expected_return_value);
+    ASSERT_EQ(message_counter, 3);
 }
