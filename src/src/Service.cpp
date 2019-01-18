@@ -6,8 +6,7 @@
 
 using namespace views_service;
 
-Service::Service() : 
-    m_impl(new ServiceImpl(*this))
+Service::Service()
 {
 
 }
@@ -19,7 +18,10 @@ Service::~Service()
 
 int Service::run()
 {
-    return m_impl->run();
+    m_impl = std::make_unique<ServiceImpl>(*this);
+    auto ret = m_impl->run();
+    m_impl = nullptr;
+    return ret;
 }
 
 controls::View & Service::createView()
