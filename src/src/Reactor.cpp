@@ -20,7 +20,7 @@ LRESULT CALLBACK Reactor::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             std::unique_lock lock(g_hwnd_to_reactor_map_mutex);
             auto [_, is_emplaced] = g_hwnd_to_reactor_map.emplace(hWnd, event_handler.getReactorInstance());
             if (!is_emplaced) {
-                throw std::exception();
+                std::terminate();
             }
         }
         return event_handler.getReactorInstance().onEvent(hWnd, message, wParam, lParam);
@@ -69,7 +69,7 @@ int Reactor::handleEvents()
             throwIfHasException();
         }
     }
-    return message.wParam;
+    return (int)message.wParam;
 }
 
 LRESULT Reactor::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) noexcept
@@ -114,12 +114,12 @@ LRESULT Reactor::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 Reactor::~Reactor() noexcept
 {
     if (!m_hwnd_to_event_handler_map.empty()) {
-        throw std::exception();
+        std::terminate();
     }
     std::shared_lock lock(g_hwnd_to_reactor_map_mutex);
     for (auto pair : g_hwnd_to_reactor_map) {
         if (&pair.second.get() == this) {
-            throw std::exception();
+            std::terminate();
         }
     }
 }
