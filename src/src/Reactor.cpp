@@ -51,7 +51,7 @@ void Reactor::throwIfHasException()
     if (m_exception) {
         auto exception = m_exception.value();
         m_exception.reset();
-        throw exception;
+        std::rethrow_exception(exception);
     }
 }
 
