@@ -18,16 +18,10 @@ Service::~Service()
 
 int Service::run()
 {
-    try {
-        m_impl = std::make_unique<ServiceImpl>(*this);
-        auto ret = m_impl->run();
-        m_impl = nullptr;
-        return ret;
-    }
-    catch (std::exception e) {
-        MessageBoxA(nullptr, e.what(), "exception", MB_OK);
-        return -1;
-    }
+    m_impl = std::make_unique<ServiceImpl>(*this);
+    auto ret = m_impl->run();
+    m_impl = nullptr;
+    return ret;
 }
 
 controls::View & Service::createView()

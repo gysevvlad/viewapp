@@ -14,7 +14,7 @@ ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor)
     m_view(view)
 {
     // CreateWindowW -> Reactor::WndProc(...) -> ViewImpl::onCreate(...)
-    CreateWindowW(
+    m_handle = CreateWindowW(
         class_name.data(),
         m_view.getText().value().data(),
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
@@ -29,7 +29,7 @@ ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor)
     getReactorInstance().throwIfHasException();
 
     if (!m_handle) {
-        throw std::runtime_error("CreateWindow(...) failed");
+        throw std::exception();
     }
     m_view.setImpl(std::unique_ptr<ViewImpl>(this));
 }
@@ -73,13 +73,11 @@ void ViewImpl::onDestroy(HWND hwnd)
 
 BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    m_handle = hwnd;
-    
     for (auto& control : m_view) {
         std::visit(overloaded{
-            [this](Button & button) {
+            [this, hwnd](Button & button) {
                 auto id = get_control_id();
-                ICommandHandler& control = *std::make_unique<ButtonImpl>(button, m_handle, id).release();
+                ICommandHandler& control = *std::make_unique<ButtonImpl>(button, hwnd, id).release();
                 m_controls.emplace(id, control);
             }}, control);
     }

@@ -1,4 +1,5 @@
-﻿#include "viewapp/Service.h"
+﻿#include <iostream>
+#include "viewapp/Service.h"
 
 int main()
 {
@@ -18,5 +19,11 @@ int main()
                 view.Close();
             });
 
-    service.run();
+    try {
+        return service.run();
+    }
+    catch (const std::exception & e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
 }

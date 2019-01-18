@@ -12,7 +12,7 @@ std::string getLastErrorMessage(std::string_view function_name) noexcept
         FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr,
         error_code,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
         (char *)&error_message_buffer,
         0, nullptr);
 
