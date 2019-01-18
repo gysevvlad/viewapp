@@ -1,41 +1,27 @@
 #pragma once
 
-#include <Windows.h>
 #include <string>
+
+#include <Windows.h>
+
+#include "Service.h"
+#include "Reactor.h"
+#include "helper.h"
 
 namespace views_service {
 
-    class Service;
-
-    namespace controls
-    {
-        class ViewImpl;
-    }
-
-    class ServiceImpl
+    class ServiceImpl : public WindowClass
     {
     public:
         ServiceImpl(Service & service);
-        ServiceImpl(Service & service, const std::string & name);
         ~ServiceImpl();
 
         int run();
 
-        BOOL OnCreateHandler(controls::ViewImpl & view_impl, HWND hwnd);
-        void OnCloseHandler(HWND hwnd);
-        void OnDestroyHandler(HWND hwnd);
-        HBRUSH OnCtlColorHandler(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-
-        const std::wstring & getClassName();
-        const HMODULE & getModuleHandle();
         Service & getService();
 
     private:
-        std::wstring m_class_name;
-        HMODULE m_module_handle;
-        UINT m_style;
-        HCURSOR m_cursor;
-        HBRUSH m_background_brush;
+        Reactor m_reactor;
         Service & m_service;
     };
 }

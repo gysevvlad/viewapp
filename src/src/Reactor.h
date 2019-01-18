@@ -40,6 +40,8 @@ public:
      */
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) noexcept;
 
+    ~Reactor() noexcept;
+
 private:
     std::optional<std::exception_ptr> m_exception;
     std::map<HWND, std::reference_wrapper<IEventHandler>> m_hwnd_to_event_handler_map;

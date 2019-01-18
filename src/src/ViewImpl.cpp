@@ -3,28 +3,18 @@
 
 #include <algorithm>
 
-#include "helper.h"
-
-#include "Service.h"
-#include "View.h"
-#include "ServiceImpl.h"
 #include "ViewImpl.h"
-#include "EditImpl.h"
-#include "ButtonImpl.h"
 
 using namespace views_service;
 using namespace controls;
 
-/*===========================================================================*/
-
-ViewImpl::ViewImpl(ServiceImpl & service, View & view) :
-    m_service(service),
+ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor) :
+    IEventHandler(reactor),
     m_view(view)
 {
-    TRACECALL();
-
-    auto handle = CreateWindowW(
-        m_service.getClassName().data(),
+    // CreateWindowW -> Reactor::WndProc(...) -> ViewImpl::onCreate(...)
+    m_handle = CreateWindowW(
+        class_name.data(),
         m_view.getText().value().data(),
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         m_view.getXPosition().value(),
@@ -32,139 +22,44 @@ ViewImpl::ViewImpl(ServiceImpl & service, View & view) :
         m_view.getWidth().value() + 16,
         m_view.getHeight().value() + 38,
         nullptr, nullptr,
-        m_service.getModuleHandle(),
-        static_cast<LPVOID>(this));
+        GetModuleHandleW(nullptr),
+        this);
 
-    if (!handle) {
+    getReactorInstance().throwIfHasException();
+
+    if (!m_handle) {
         throw std::runtime_error("CreateWindow(...) failed");
     }
+    m_view.setImpl(std::unique_ptr<ViewImpl>(this));
 }
 
 ViewImpl::~ViewImpl()
 {
-    TRACECALL();
 
-    for (auto & control : m_view) {
-        std::visit(overloaded{
-            [this](controls::Edit & edit) {
-                edit.setImpl(nullptr);
-            },
-            [this](controls::Button & button) {
-                button.setImpl(nullptr);
-            }
-        }, control);
+}
+
+LRESULT ViewImpl::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message) {
+        HANDLE_MSG(hWnd, WM_CLOSE, onClose);
+        HANDLE_MSG(hWnd, WM_DESTROY, onDestroy);
+        HANDLE_MSG(hWnd, WM_CREATE, onCreate);
+        default: return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 }
 
-/*===========================================================================*/
-
-BOOL ViewImpl::OnCreateHandler(HWND hwnd)
+void ViewImpl::onClose(HWND hwnd)
 {
-    TRACECALL();
-
-    m_handle = hwnd;
-    set_default_font();
-    set_default_background_brush();
-    
-    for (auto & control : m_view) {
-        std::visit(overloaded{
-            [this](controls::Edit & edit) {
-                auto edit_impl = std::make_unique<EditImpl>(*this, edit);
-                edit_impl->setFont(m_font);
-                edit.setImpl(std::move(edit_impl));
-            },
-            [this](controls::Button & button) {
-                auto button_impl = std::make_unique<ButtonImpl>(*this, button);
-                button.setImpl(std::move(button_impl));
-            }
-        }, control);
-    }
-    
-    return TRUE;
+    // ~WindowClass() -> DestroyWindow(...) -> Reactor::WndProc -> ViewImpl::onDestroy()
+    m_handle = nullptr;
 }
 
-void ViewImpl::OnCloseHandler()
+void ViewImpl::onDestroy(HWND hwnd)
 {
-    TRACECALL();
-
     m_view.setImpl(nullptr);
 }
 
-HBRUSH ViewImpl::OnCtlColorHandler(HDC hdc, HWND, int)
+BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-    SetBkColor(hdc, m_log_background_brush.lbColor);
-    return m_background_brush;
+    return TRUE;
 }
-
-/*===========================================================================*/
-
-void ViewImpl::set_default_font()
-{
-    LOGFONT lf;
-
-    if (!GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf)) {
-        std::runtime_error("GetObject(...) failed");
-    }
-
-    DeviceContext device_context(m_handle);
-
-    lf.lfHeight = -MulDiv(10, GetDeviceCaps(device_context, LOGPIXELSY), 72);
-
-    GDIObject font = CreateFontIndirect(&lf);
-
-    RECT area;
-    SelectObjectWrapper wrapper(device_context, font);
-
-    if (!DrawTextW(device_context, L" ", 1, &area, DT_CALCRECT)) {
-        std::runtime_error("DrawText(...) failed");
-    }
-
-    m_font = std::move(font);
-    m_font_height = area.bottom - area.top;
-}
-
-void ViewImpl::set_default_background_brush()
-{
-    auto brush = GetSysColorBrush(COLOR_BTNFACE);
-
-    if (brush == nullptr) {
-        throw std::runtime_error("GetSysColorBrush(...) failed");
-    }
-    LOGBRUSH logBrush;
-
-    if (GetObject(brush, sizeof(LOGBRUSH), &logBrush) == 0) {
-        throw std::runtime_error("GetObject(...) failed");
-    }
-
-    m_log_background_brush = logBrush;
-    m_background_brush = brush;
-}
-
-/*===========================================================================*/
-
-ServiceImpl & ViewImpl::getServiceImpl()
-{
-    return m_service;
-}
-
-const WindowHandle & ViewImpl::getHandle()
-{
-    return m_handle;
-}
-
-unsigned ViewImpl::getFontHeight()
-{
-    return m_font_height;
-}
-
-HMENU ViewImpl::getNextId()
-{
-    return (HMENU)m_next_id++;
-}
-
-const HMODULE & ViewImpl::getModuleHandle()
-{
-    return m_service.getModuleHandle();
-}
-
-/*===========================================================================*/

@@ -2,45 +2,27 @@
 
 #include <windows.h>
 
-#include "helper.h"
+#include <string>
 
-namespace views_service 
-{
-    class ServiceImpl;
-}
+#include "View.h"
+#include "Reactor.h"
+#include "helper.h"
 
 namespace views_service::controls
 {
-    class View;
-
-    class ViewImpl
+    class ViewImpl : public Reactor::IEventHandler
     {
     public:
-        ViewImpl(ServiceImpl & m_service, View & m_view);
+        ViewImpl(std::wstring_view class_name, View & m_view, Reactor & reactor);
         ~ViewImpl();
 
-        BOOL OnCreateHandler(HWND hwnd);
-        void OnCloseHandler();
-        HBRUSH OnCtlColorHandler(HDC hdc, HWND hwndChild, int type);
-
-        ServiceImpl & getServiceImpl();
-        const WindowHandle & getHandle();
-        unsigned getFontHeight();
-        HMENU getNextId();
-        const HMODULE & getModuleHandle();
+        virtual LRESULT onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
+        void onClose(HWND hwnd);
+        void onDestroy(HWND hwnd);
+        BOOL onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
 
     private:
-        void set_default_font();
-        void set_default_background_brush();
-
-    private:
-        ServiceImpl & m_service;
-        View & m_view;
         WindowHandle m_handle;
-        GDIObject m_font;
-        long long m_next_id;
-        unsigned m_font_height;
-        LOGBRUSH m_log_background_brush;
-        HBRUSH m_background_brush;
+        View & m_view;
     };
 }

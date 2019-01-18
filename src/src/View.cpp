@@ -1,29 +1,16 @@
 #include "View.h"
 #include "ViewImpl.h"
-#include "Logger.h"
 
 using namespace views_service::controls;
 
 View::View()
 {
-    TRACECALL();
+
 }
 
 View::~View()
 {
-    TRACECALL();
-}
 
-Edit & View::createEdit()
-{
-    TRACECALL();
-    return std::get<Edit>(m_controls.emplace_back(Edit()));
-}
-
-Button & View::createButton()
-{
-    TRACECALL();
-    return std::get<Button>(m_controls.emplace_back(Button()));
 }
 
 View & View::setPosition(unsigned x_pos, unsigned y_pos)
@@ -75,16 +62,6 @@ View & View::setText(std::wstring text)
 const std::optional<std::wstring> & View::getText() const
 {
     return m_text;
-}
-
-std::list<std::variant<Edit, Button>>::iterator View::begin()
-{ 
-    return m_controls.begin();
-}
-
-std::list<std::variant<Edit, Button>>::iterator View::end()
-{
-    return m_controls.end();
 }
 
 void View::setImpl(std::unique_ptr<ViewImpl> && impl)

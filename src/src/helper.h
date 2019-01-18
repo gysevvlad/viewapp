@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <windowsx.h>
 #include <string>
 #include <cassert>
 #include <utility>
@@ -160,18 +161,24 @@ class WindowClass
 {
 public:
     WindowClass(std::wstring_view class_name, WNDPROC wndproc) :
-        m_class_name(class_name),
-        m_wndproc(wndproc)
+        m_class_name(class_name)
     {
         WNDCLASSW wc = { 0 };
-        wc.lpfnWndProc = wndproc;
-        wc.hInstance = GetModuleHandleW(nullptr);
         wc.lpszClassName = m_class_name.data();
+        wc.lpfnWndProc = wndproc;
+        wc.style = CS_HREDRAW | CS_VREDRAW;
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hbrBackground = GetStockBrush(WHITE_BRUSH);
+        wc.hInstance = GetModuleHandleW(nullptr);
 
         if (!RegisterClassW(&wc)) {
             std::runtime_error(getLastErrorMessage("RegisterClassW(...)"));
         }
     }
+
+    const std::wstring & getClassName() { return m_class_name; }
+
+    HMODULE getModuleHandle() { return GetModuleHandleW(nullptr); }
 
     ~WindowClass() noexcept
     {
@@ -179,6 +186,6 @@ public:
     }
 
 private:
+    WNDCLASSW m_wc;
     std::wstring m_class_name;
-    WNDPROC m_wndproc;
 };

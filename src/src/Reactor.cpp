@@ -18,7 +18,10 @@ LRESULT CALLBACK Reactor::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         auto& event_handler = *static_cast<Reactor::IEventHandler*>(create_struct->lpCreateParams);
         {
             std::unique_lock lock(g_hwnd_to_reactor_map_mutex);
-            g_hwnd_to_reactor_map.emplace(hWnd, event_handler.getReactorInstance());
+            auto [_, is_emplaced] = g_hwnd_to_reactor_map.emplace(hWnd, event_handler.getReactorInstance());
+            if (!is_emplaced) {
+                throw std::exception();
+            }
         }
         return event_handler.getReactorInstance().onEvent(hWnd, message, wParam, lParam);
     }
@@ -39,7 +42,7 @@ LRESULT CALLBACK Reactor::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             return reactor.onEvent(hWnd, message, wParam, lParam);
         }
         lock.unlock();
-        return DefWindowProcW(hWnd, message, wParam, lParam);;
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 }
 
@@ -74,12 +77,9 @@ LRESULT Reactor::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     if (message == WM_CREATE) {
         auto create_struct = static_cast<LPCREATESTRUCTW>(reinterpret_cast<void*>(lParam));
         auto& event_handler = *static_cast<Reactor::IEventHandler*>(create_struct->lpCreateParams);
+        m_hwnd_to_event_handler_map.emplace(hWnd, event_handler);
         try {
-            auto return_value = event_handler.onEvent(hWnd, message, wParam, lParam);
-            if (return_value == 0) {
-                m_hwnd_to_event_handler_map.emplace(hWnd, event_handler);
-            }
-            return return_value;
+            return event_handler.onEvent(hWnd, message, wParam, lParam);
         }
         catch (...) {
             m_exception = std::current_exception();
@@ -94,15 +94,32 @@ LRESULT Reactor::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         catch (...) {
             m_exception = std::current_exception();
         }
+        if (m_hwnd_to_event_handler_map.empty()) {
+            PostQuitMessage(0);
+        }
         return 0;
     }
     else {
+        auto& reactor = m_hwnd_to_event_handler_map.at(hWnd).get();
         try {
-            return m_hwnd_to_event_handler_map.at(hWnd).get().onEvent(hWnd, message, wParam, lParam);
+            return reactor.onEvent(hWnd, message, wParam, lParam);
         }
         catch (...) {
             m_exception = std::current_exception();
             return DefWindowProcW(hWnd, message, wParam, lParam);
+        }
+    }
+}
+
+Reactor::~Reactor() noexcept
+{
+    if (!m_hwnd_to_event_handler_map.empty()) {
+        throw std::exception();
+    }
+    std::shared_lock lock(g_hwnd_to_reactor_map_mutex);
+    for (auto pair : g_hwnd_to_reactor_map) {
+        if (&pair.second.get() == this) {
+            throw std::exception();
         }
     }
 }

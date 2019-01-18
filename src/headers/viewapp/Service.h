@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "View.h"
-#include "Logger.h"
 
 namespace views_service
 {
@@ -14,7 +13,6 @@ namespace views_service
     {
     public:
         Service();
-        Service(const std::string & name);
         ~Service();
 
         controls::View & createView();
