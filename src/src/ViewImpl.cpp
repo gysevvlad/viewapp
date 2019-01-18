@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "ViewImpl.h"
+#include "ButtonImpl.h"
 
 using namespace views_service;
 using namespace controls;
@@ -13,7 +14,7 @@ ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor)
     m_view(view)
 {
     // CreateWindowW -> Reactor::WndProc(...) -> ViewImpl::onCreate(...)
-    m_handle = CreateWindowW(
+    CreateWindowW(
         class_name.data(),
         m_view.getText().value().data(),
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
@@ -38,14 +39,25 @@ ViewImpl::~ViewImpl()
 
 }
 
+void ViewImpl::Close()
+{
+    PostMessageW(m_handle, WM_CLOSE, 0, 0);
+}
+
 LRESULT ViewImpl::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
         HANDLE_MSG(hWnd, WM_CLOSE, onClose);
         HANDLE_MSG(hWnd, WM_DESTROY, onDestroy);
         HANDLE_MSG(hWnd, WM_CREATE, onCreate);
+        HANDLE_MSG(hWnd, WM_COMMAND, OnCommand);
         default: return DefWindowProcW(hWnd, message, wParam, lParam);
     }
+}
+
+void ViewImpl::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+{
+    m_controls.at(id).get().OnCommand(hwnd, id, hwndCtl, codeNotify);
 }
 
 void ViewImpl::onClose(HWND hwnd)
@@ -61,5 +73,21 @@ void ViewImpl::onDestroy(HWND hwnd)
 
 BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
+    m_handle = hwnd;
+    
+    for (auto& control : m_view) {
+        std::visit(overloaded{
+            [this](Button & button) {
+                auto id = get_control_id();
+                ICommandHandler& control = *std::make_unique<ButtonImpl>(button, m_handle, id).release();
+                m_controls.emplace(id, control);
+            }}, control);
+    }
     return TRUE;
+}
+
+int ViewImpl::get_control_id()
+{
+    static int id = 0;
+    return id++;
 }

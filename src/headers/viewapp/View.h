@@ -3,6 +3,15 @@
 #include <string>
 #include <memory>
 #include <optional>
+#include <list>
+#include <variant>
+
+#include "Button.h"
+
+namespace views_service
+{
+    class Service;
+}
 
 namespace views_service::controls
 {
@@ -13,6 +22,16 @@ namespace views_service::controls
     public:
         View();
         ~View();
+
+        /**
+         * Create button control
+         */
+        Button & createButton();
+
+        /**
+         * Close window
+         */
+        void Close();
 
         View & setPosition(unsigned x_pos, unsigned y_pos);
         const std::optional<unsigned> & getXPosition() const;
@@ -29,6 +48,9 @@ namespace views_service::controls
         void setImpl(std::unique_ptr<ViewImpl> &&);
         ViewImpl* getImpl();
 
+        auto begin() { return m_controls.begin(); }
+        auto end() { return m_controls.end(); }
+
     private:
         std::unique_ptr<ViewImpl> m_impl;
         std::optional<unsigned> m_width;
@@ -36,5 +58,6 @@ namespace views_service::controls
         std::optional<unsigned> m_x_position;
         std::optional<unsigned> m_y_position;
         std::optional<std::wstring> m_text;
+        std::list<std::variant<Button>> m_controls;
     };
 }

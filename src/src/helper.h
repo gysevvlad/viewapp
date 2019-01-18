@@ -160,7 +160,7 @@ private:
 class WindowClass
 {
 public:
-    WindowClass(WNDPROC wndproc, std::wstring_view class_name = generate_class_name()) :
+    WindowClass(WNDPROC wndproc, std::wstring class_name = generate_class_name()) :
         m_class_name(class_name)
     {
         WNDCLASSW wc = { 0 };
@@ -182,7 +182,9 @@ public:
 
     ~WindowClass() noexcept
     {
-        UnregisterClassW(m_class_name.data(), GetModuleHandleW(nullptr));
+        if (!m_class_name.empty()) {
+            UnregisterClassW(m_class_name.data(), GetModuleHandleW(nullptr));
+        }
     }
 
 private:

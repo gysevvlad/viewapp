@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "View.h"
 #include "ViewImpl.h"
 
@@ -11,6 +13,19 @@ View::View()
 View::~View()
 {
 
+}
+
+Button & View::createButton()
+{
+    return std::get<Button>(m_controls.emplace_back(Button()));
+}
+
+void View::Close()
+{
+    if (!m_impl) {
+        throw std::exception();
+    }
+    m_impl->Close();
 }
 
 View & View::setPosition(unsigned x_pos, unsigned y_pos)

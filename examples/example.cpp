@@ -9,5 +9,14 @@ int main()
         .setSize(200, 45)
         .setText("app");
 
+    auto & button = view.createButton()
+        .setPosition(10, 10)
+        .setSize(180, 25)
+        .setText("close")
+        .setClickHandler(
+            [&view]() {
+                view.Close();
+            });
+
     service.run();
 }
