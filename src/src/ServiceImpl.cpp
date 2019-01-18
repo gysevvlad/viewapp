@@ -3,9 +3,6 @@
 #include <Windows.h>
 #include <Windowsx.h>
 
-#include <algorithm>
-#include <unordered_map>
-
 #include "ServiceImpl.h"
 #include "Service.h"
 #include "ViewImpl.h"

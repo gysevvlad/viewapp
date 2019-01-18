@@ -37,11 +37,6 @@ std::list<controls::View>::iterator Service::end()
     return m_views.end(); 
 }
 
-void Service::erase(std::list<controls::View>::iterator pos)
-{ 
-    m_views.erase(pos);
-}
-
 ServiceImpl & Service::getImpl()
 { 
     return *m_impl;

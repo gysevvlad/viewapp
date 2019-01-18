@@ -50,7 +50,7 @@ LRESULT ViewImpl::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ViewImpl::onClose(HWND hwnd)
 {
-    // ~WindowClass() -> DestroyWindow(...) -> Reactor::WndProc -> ViewImpl::onDestroy()
+    // ~WindowClass -> DestroyWindow -> Reactor::WndProc -> Reactor::onEvent -> ViewImpl::onDestroy
     m_handle = nullptr;
 }
 

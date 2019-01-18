@@ -20,7 +20,6 @@ namespace views_service
 
         std::list<controls::View>::iterator begin();
         std::list<controls::View>::iterator end();
-        void erase(std::list<controls::View>::iterator pos);
 
         ServiceImpl & getImpl();
 
