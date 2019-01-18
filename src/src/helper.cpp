@@ -24,3 +24,11 @@ std::string getLastErrorMessage(std::string_view function_name) noexcept
     LocalFree(error_message_buffer);
     return error_message;
 }
+
+std::wstring WindowClass::generate_class_name()
+{
+    static int id = 0;
+    std::wstring class_name = L"window_class_";
+    class_name.append(std::to_wstring(id++));
+    return class_name;
+}

@@ -64,9 +64,8 @@ TEST(Reactor, BaseUsage)
             }
         }
     };
-    std::wstring class_name = L"BaseUsage";
-    WindowClass window_class(class_name, Reactor::WndProc);
-    window_handle = createTestWindow(class_name, &handler);
+    WindowClass window_class(Reactor::WndProc);
+    window_handle = createTestWindow(window_class.getClassName(), &handler);
     ASSERT_NO_THROW(reactor.throwIfHasException());
     ASSERT_NE(window_handle, nullptr);
     ASSERT_EQ(reactor.handleEvents(), 0);
@@ -86,9 +85,8 @@ TEST(Reactor, WmCreateWithException)
             }
         }
     };
-    std::wstring class_name = L"BaseUsage";
-    WindowClass window_class(class_name, Reactor::WndProc);
-    auto window_handle = createTestWindow(class_name, &handler);
+    WindowClass window_class(Reactor::WndProc);
+    auto window_handle = createTestWindow(window_class.getClassName(), &handler);
     ASSERT_ANY_THROW(reactor.throwIfHasException());
     ASSERT_EQ(window_handle, nullptr);
     ASSERT_EQ(reactor.handleEvents(), 0);
@@ -107,9 +105,8 @@ TEST(Reactor, WmCreateWithBadReturn)
             }
         }
     };
-    std::wstring class_name = L"BaseUsage";
-    WindowClass window_class(class_name, Reactor::WndProc);
-    auto window_handle = createTestWindow(class_name, &handler);
+    WindowClass window_class(Reactor::WndProc);
+    auto window_handle = createTestWindow(window_class.getClassName(), &handler);
     ASSERT_NO_THROW(reactor.throwIfHasException());
     ASSERT_EQ(window_handle, nullptr);
     ASSERT_EQ(reactor.handleEvents(), 0);

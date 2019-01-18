@@ -10,7 +10,7 @@
 using namespace views_service;
 
 ServiceImpl::ServiceImpl(Service & service) :
-    WindowClass(L"views_service", Reactor::WndProc),
+    WindowClass(Reactor::WndProc),
     m_service(service)
 {
 
