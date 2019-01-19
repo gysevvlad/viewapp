@@ -5,6 +5,7 @@
 
 #include "ViewImpl.h"
 #include "ButtonImpl.h"
+#include "EditImpl.h"
 
 using namespace views_service;
 using namespace controls;
@@ -31,12 +32,16 @@ ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor)
     if (!m_handle) {
         throw std::exception();
     }
-    m_view.setImpl(std::unique_ptr<ViewImpl>(this));
 }
 
 ViewImpl::~ViewImpl()
 {
-
+    for (auto& variant : m_view) {
+        std::visit([](auto& control) {
+            control.setImpl(nullptr);
+        },
+        variant);
+    }
 }
 
 void ViewImpl::Close()
@@ -79,9 +84,17 @@ BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
                 auto id = get_control_id();
                 ICommandHandler& control = *std::make_unique<ButtonImpl>(button, hwnd, id).release();
                 m_controls.emplace(id, control);
-            }}, control);
+            },
+            [this, hwnd](Edit & edit) {
+                auto id = get_control_id();
+                auto edit_impl = std::make_unique<EditImpl>(edit, hwnd, id);
+                ICommandHandler& control = *edit_impl;
+                m_controls.emplace(id, control);
+                edit.setImpl(std::move(edit_impl));
+            }
+            }, control);
     }
-    return TRUE;
+    return true;
 }
 
 int ViewImpl::get_control_id()

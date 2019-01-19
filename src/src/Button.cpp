@@ -20,7 +20,7 @@ Button::Button(Button && other) noexcept
 
 Button & Button::setClickHandler(std::function<void()> click_handler)
 {
-    m_click_handler = click_handler;	
+    m_click_handler = click_handler;    
     return *this;
 }
 

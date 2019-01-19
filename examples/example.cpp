@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include "viewapp/Service.h"
+﻿#include "viewapp/Service.h"
 
 int main()
 {
@@ -10,14 +9,10 @@ int main()
         .setSize(200, 45)
         .setText("app");
 
-    auto & button = view.createButton()
+    auto & edit = view.createEdit()
         .setPosition(10, 10)
         .setSize(180, 25)
-        .setText("close")
-        .setClickHandler(
-            [&view]() {
-                view.Close();
-            });
+        .setText("");
 
     return service.run();
 }
