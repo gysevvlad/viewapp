@@ -2,6 +2,8 @@
 #include <mutex>
 #include <shared_mutex>
 #include <map>
+#include <spdlog/spdlog.h>
+
 #include "Reactor.h"
 #include "helper.h"
 
@@ -13,6 +15,7 @@ std::map<HWND, std::reference_wrapper<Reactor>> g_hwnd_to_reactor_map;
 
 LRESULT CALLBACK Reactor::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) noexcept
 {
+    spdlog::trace("WndProc(hWnd=\"{}\", msg=\"{}\", wParam=\"{}\", lParam=\"{}\")", (void*)hWnd, message, wParam, lParam);
     if (message == WM_CREATE) {
         auto create_struct = static_cast<LPCREATESTRUCTW>(reinterpret_cast<void*>(lParam));
         auto& event_handler = *static_cast<Reactor::IEventHandler*>(create_struct->lpCreateParams);
