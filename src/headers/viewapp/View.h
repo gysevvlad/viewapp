@@ -7,6 +7,7 @@
 #include <variant>
 
 #include "Button.h"
+#include "Edit.h"
 
 namespace views_service
 {
@@ -27,6 +28,11 @@ namespace views_service::controls
          * Create button control
          */
         Button & createButton();
+
+        /*
+         * Create edit control
+         */
+        Edit & createEdit();
 
         /**
          * Close window
@@ -58,6 +64,6 @@ namespace views_service::controls
         std::optional<unsigned> m_x_position;
         std::optional<unsigned> m_y_position;
         std::optional<std::wstring> m_text;
-        std::list<std::variant<Button>> m_controls;
+        std::list<std::variant<Button, Edit>> m_controls;
     };
 }

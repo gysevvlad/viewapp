@@ -20,6 +20,11 @@ Button & View::createButton()
     return std::get<Button>(m_controls.emplace_back(Button()));
 }
 
+Edit & View::createEdit()
+{
+    return std::get<Edit>(m_controls.emplace_back(Edit()));
+}
+
 void View::Close()
 {
     if (!m_impl) {

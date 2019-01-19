@@ -24,7 +24,7 @@ ServiceImpl::~ServiceImpl()
 int ServiceImpl::run()
 {
     for (auto & view : m_service) {
-        std::make_unique<controls::ViewImpl>(getClassName(), view, m_reactor).release();
+        view.setImpl(std::make_unique<controls::ViewImpl>(getClassName(), view, m_reactor));
     }
     return m_reactor.handleEvents();
 }
