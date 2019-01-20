@@ -96,7 +96,7 @@ BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         std::visit(
             [this, hwnd](auto & edit) {
                 auto id = get_control_id();
-                auto edit_impl = std::make_unique<std::remove_reference_t<decltype(edit)>::Impl>(edit, hwnd, id);
+                auto edit_impl = std::make_unique<Impl<std::remove_reference_t<decltype(edit)>>>(edit, hwnd, id);
                 ICommandHandler& control = *edit_impl;
                 m_controls.emplace(id, control);
                 edit.setImpl(std::move(edit_impl));

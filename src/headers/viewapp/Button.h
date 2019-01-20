@@ -26,20 +26,7 @@ namespace views_service::controls
             return m_click_handler;
         }
 
-        /**
-         * Implementation
-         */
-        class Impl;
-
-        Impl * getImpl()
-        {
-            return m_impl.get();
-        }
-
-        void setImpl(std::unique_ptr<Impl> && impl);
-
     private:
-        std::unique_ptr<Impl> m_impl;
         std::function<void()> m_click_handler;
     };
 }

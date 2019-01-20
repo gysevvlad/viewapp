@@ -6,12 +6,12 @@ Button::Button() = default;
 Button::Button(Button &&) = default;
 Button::~Button() = default;
 
-void Button::setImpl(std::unique_ptr<Button::Impl> && impl)
+void Base<Button>::setImpl(std::unique_ptr<Impl<Button>> && impl)
 {
     m_impl = std::move(impl);
 }
 
-Button::Impl::Impl(Button & button, HWND parent, int id) :
+Impl<Button>::Impl(Button & button, HWND parent, int id) :
     m_button(button)
 {
     m_handle = CreateWindowW(L"BUTTON",
@@ -28,7 +28,7 @@ Button::Impl::Impl(Button & button, HWND parent, int id) :
     }
 }
 
-void Button::Impl::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void Impl<Button>::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     if (codeNotify == BN_CLICKED) {
         m_button.getClickHandler()();

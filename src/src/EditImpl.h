@@ -5,7 +5,8 @@
 
 namespace views_service::controls
 {
-    class Edit::Impl : public ViewImpl::ICommandHandler
+    template<>
+    class Impl<Edit> : public ViewImpl::ICommandHandler
     {
     public:
         Impl(Edit & m_edit, HWND parent_handle, int control_id);

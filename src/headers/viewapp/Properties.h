@@ -6,6 +6,9 @@
 namespace views_service::controls
 {
     template<class T>
+    class Impl;
+
+    template<class T>
     class Base
     {
     public:
@@ -69,7 +72,18 @@ namespace views_service::controls
             return m_text;
         }
 
+        /**
+         * Implementation
+         */
+        Impl<T> * getImpl()
+        {
+            return m_impl.get();
+        }
+
+        void setImpl(std::unique_ptr<Impl<T>> && impl);
+
     private:
+        std::unique_ptr<Impl<T>> m_impl;
         std::optional<unsigned> m_width;
         std::optional<unsigned> m_height;
         std::optional<unsigned> m_x_position;
