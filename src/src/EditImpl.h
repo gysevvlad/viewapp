@@ -5,10 +5,10 @@
 
 namespace views_service::controls
 {
-    class EditImpl : public ViewImpl::ICommandHandler
+    class Edit::Impl : public ViewImpl::ICommandHandler
     {
     public:
-        EditImpl(Edit & m_edit, HWND parent_handle, int control_id);
+        Impl(Edit & m_edit, HWND parent_handle, int control_id);
 
         virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) override;
 

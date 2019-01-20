@@ -6,12 +6,12 @@ Edit::Edit() = default;
 Edit::Edit(Edit && other) = default;
 Edit::~Edit() = default;
 
-void Edit::setImpl(std::unique_ptr<EditImpl> && impl)
+void Edit::setImpl(std::unique_ptr<Edit::Impl> && impl)
 {
     m_impl = std::move(impl);
 }
 
-EditImpl::EditImpl(Edit & edit, HWND parent, int id) :
+Edit::Impl::Impl(Edit & edit, HWND parent, int id) :
     m_edit(edit)
 {
     m_handle = CreateWindowW(L"EDIT",
@@ -28,7 +28,7 @@ EditImpl::EditImpl(Edit & edit, HWND parent, int id) :
     }
 }
 
-void views_service::controls::EditImpl::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void Edit::Impl::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
 
 }

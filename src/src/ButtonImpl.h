@@ -5,10 +5,10 @@
 
 namespace views_service::controls
 {
-    class ButtonImpl : public ViewImpl::ICommandHandler
+    class Button::Impl : public ViewImpl::ICommandHandler
     {
     public:
-        ButtonImpl(Button & m_button, HWND parent, int id);
+        Impl(Button & m_button, HWND parent, int id);
 
         virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) override;
 

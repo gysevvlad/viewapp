@@ -1,3 +1,5 @@
+#include <type_traits>
+
 #include "ViewImpl.h"
 #include "ButtonImpl.h"
 #include "EditImpl.h"
@@ -91,21 +93,13 @@ void ViewImpl::onDestroy(HWND hwnd)
 BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     for (auto& control : m_view) {
-        std::visit(overloaded{
-            [this, hwnd](Button & button) {
+        std::visit(
+            [this, hwnd](auto & edit) {
                 auto id = get_control_id();
-                auto edit_impl = std::make_unique<ButtonImpl>(button, hwnd, id);
-                ICommandHandler& control = *edit_impl;
-                m_controls.emplace(id, control);
-                button.setImpl(std::move(edit_impl));
-            },
-            [this, hwnd](Edit & edit) {
-                auto id = get_control_id();
-                auto edit_impl = std::make_unique<EditImpl>(edit, hwnd, id);
+                auto edit_impl = std::make_unique<std::remove_reference_t<decltype(edit)>::Impl>(edit, hwnd, id);
                 ICommandHandler& control = *edit_impl;
                 m_controls.emplace(id, control);
                 edit.setImpl(std::move(edit_impl));
-            }
             }, control);
     }
     return true;
