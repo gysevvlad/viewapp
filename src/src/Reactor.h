@@ -1,10 +1,11 @@
 #pragma once
 
-#include <Windows.h>
 #include <functional>
 #include <exception>
 #include <optional>
 #include <map>
+
+#include <Windows.h>
 
 class Reactor
 {

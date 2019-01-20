@@ -1,18 +1,30 @@
-#include <Windows.h>
-#include <Windowsx.h>
-
-#include <algorithm>
-
 #include "ViewImpl.h"
 #include "ButtonImpl.h"
 #include "EditImpl.h"
 
-using namespace views_service;
-using namespace controls;
+using namespace views_service::controls;
+
+View::View() = default;
+View::View(View &&) = default;
+View::~View() = default;
+
+void View::Close()
+{
+    if (!m_impl) {
+        throw std::exception();
+    }
+    m_impl->Close();
+}
+
+void View::setImpl(std::unique_ptr<ViewImpl> && impl)
+{
+    m_impl = std::move(impl);
+}
 
 ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor) :
     IEventHandler(reactor),
-    m_view(view)
+    m_view(view),
+    m_id(0)
 {
     // CreateWindowW -> Reactor::WndProc(...) -> ViewImpl::onCreate(...)
     m_handle = CreateWindowW(
@@ -52,15 +64,15 @@ void ViewImpl::Close()
 LRESULT ViewImpl::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
-        HANDLE_MSG(hWnd, WM_CLOSE, onClose);
+        HANDLE_MSG(hWnd, WM_CLOSE,   onClose);
         HANDLE_MSG(hWnd, WM_DESTROY, onDestroy);
-        HANDLE_MSG(hWnd, WM_CREATE, onCreate);
-        HANDLE_MSG(hWnd, WM_COMMAND, OnCommand);
+        HANDLE_MSG(hWnd, WM_CREATE,  onCreate);
+        HANDLE_MSG(hWnd, WM_COMMAND, onCommand);
         default: return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 }
 
-void ViewImpl::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void ViewImpl::onCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     m_controls.at(id).get().OnCommand(hwnd, id, hwndCtl, codeNotify);
 }
@@ -82,8 +94,10 @@ BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
         std::visit(overloaded{
             [this, hwnd](Button & button) {
                 auto id = get_control_id();
-                ICommandHandler& control = *std::make_unique<ButtonImpl>(button, hwnd, id).release();
+                auto edit_impl = std::make_unique<ButtonImpl>(button, hwnd, id);
+                ICommandHandler& control = *edit_impl;
                 m_controls.emplace(id, control);
+                button.setImpl(std::move(edit_impl));
             },
             [this, hwnd](Edit & edit) {
                 auto id = get_control_id();
@@ -99,6 +113,5 @@ BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 int ViewImpl::get_control_id()
 {
-    static int id = 0;
-    return id++;
+    return m_id++;
 }

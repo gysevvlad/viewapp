@@ -1,10 +1,11 @@
 #pragma once
 
-#include <windows.h>
 
 #include <string>
 #include <map>
 #include <functional>
+
+#include <windows.h>
 
 #include "View.h"
 #include "Reactor.h"
@@ -28,15 +29,16 @@ namespace views_service::controls
         void onClose(HWND hwnd);
         void onDestroy(HWND hwnd);
         BOOL onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
-        void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+        void onCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
 
     private:
-        static int get_control_id();
+        int get_control_id();
 
     private:
         std::map<int, std::reference_wrapper<ViewImpl::ICommandHandler>> m_controls;
         WindowHandle m_handle;
         View & m_view;
+        int m_id;
     };
 
     class ViewImpl::ICommandHandler

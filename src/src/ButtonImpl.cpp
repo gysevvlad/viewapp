@@ -1,8 +1,15 @@
-#include "Button.h"
 #include "ButtonImpl.h"
-#include "helper.h"
 
 using namespace views_service::controls;
+
+Button::Button() = default;
+Button::Button(Button &&) = default;
+Button::~Button() = default;
+
+void Button::setImpl(std::unique_ptr<ButtonImpl> && impl)
+{
+    m_impl = std::move(impl);
+}
 
 ButtonImpl::ButtonImpl(Button & button, HWND parent, int id) :
     m_button(button)
@@ -19,11 +26,6 @@ ButtonImpl::ButtonImpl(Button & button, HWND parent, int id) :
     if (!m_handle) {
         throw std::runtime_error(getLastErrorMessage("CreateWindowW"));
     }
-}
-
-ButtonImpl::~ButtonImpl()
-{
-
 }
 
 void views_service::controls::ButtonImpl::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)

@@ -1,8 +1,8 @@
-#pragma once	
+#pragma once
 
-#include <optional>	
-#include <functional>	
-#include <string>	
+#include <optional>
+#include <functional>
+#include <string>
 
 namespace views_service::controls
 {
@@ -12,26 +12,92 @@ namespace views_service::controls
     {
     public:
         Button();
+        Button(Button &&);
         ~Button();
-        Button(Button &&) noexcept;
 
-        Button & setClickHandler(std::function<void()> click_handler);
-        std::function<void()> & getClickHandler();
+        /**
+         * Click handler property
+         */
+        Button & setClickHandler(std::function<void()> click_handler)
+        {
+            m_click_handler = click_handler;
+            return *this;
+        }
 
-        Button & setPosition(unsigned x_pos, unsigned y_pos);
-        const std::optional<unsigned> & getXPosition() const;
-        const std::optional<unsigned> & getYPosition() const;
+        std::function<void()> & getClickHandler()
+        {
+            return m_click_handler;
+        }
 
-        Button & setSize(unsigned width, unsigned height);
-        const std::optional<unsigned> & getWidth() const;
-        const std::optional<unsigned> & getHeight() const;
+        /**
+         * Position property
+         */
+        Button & setPosition(unsigned x_pos, unsigned y_pos)
+        {
+            m_x_position = x_pos;
+            m_y_position = y_pos;
+            return *this;
+        }
 
-        Button & setText(const std::string & text);
-        Button & setText(std::wstring text);
-        const std::optional<std::wstring> & getText() const;
+        const std::optional<unsigned> & getXPosition() const
+        {
+            return m_x_position;
+        }
 
+        const std::optional<unsigned> & getYPosition() const
+        {
+            return m_y_position;
+        }
+
+        /**
+         * Size property
+         */
+        Button & setSize(unsigned width, unsigned height)
+        {
+            m_width = width;
+            m_height = height;
+            return *this;
+        }
+
+        const std::optional<unsigned> & getWidth() const
+        {
+            return m_width;
+        }
+
+        const std::optional<unsigned> & getHeight() const
+        {
+            return m_height;
+        }
+
+        /**
+         * Text property
+         */
+        Button & setText(const std::string & text)
+        {
+            m_text = std::wstring(text.begin(), text.end());
+            return *this;
+        }
+
+        Button & setText(std::wstring text)
+        {
+            m_text = text;
+            return *this;
+        }
+
+        const std::optional<std::wstring> & getText() const
+        {
+            return m_text;
+        }
+
+        /**
+         * Implementation
+         */
         void setImpl(std::unique_ptr<ButtonImpl> && impl);
-        ButtonImpl * getImpl();
+
+        ButtonImpl * getImpl()
+        {
+            return m_impl.get();
+        }
 
     private:
         std::unique_ptr<ButtonImpl> m_impl;

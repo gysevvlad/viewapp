@@ -2,7 +2,6 @@
 
 #include "Edit.h"
 #include "ViewImpl.h"
-#include "helper.h"
 
 namespace views_service::controls
 {
@@ -14,7 +13,7 @@ namespace views_service::controls
         virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) override;
 
     private:
-        WindowHandle m_edit_handle;
-        controls::Edit & m_edit;
+        Edit & m_edit;
+        WindowHandle m_handle;
     };
 }
