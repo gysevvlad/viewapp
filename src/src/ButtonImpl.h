@@ -6,7 +6,7 @@
 namespace views_service::controls
 {
     template<>
-    class Impl<Button> : public ViewImpl::ICommandHandler
+    class Impl<Button> : public ICommandHandler
     {
     public:
         Impl(Button & m_button, HWND parent, int id);

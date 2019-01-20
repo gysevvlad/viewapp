@@ -13,14 +13,19 @@
 
 namespace views_service::controls
 {
-    class ViewImpl : public Reactor::IEventHandler
+    class ICommandHandler
     {
     public:
-        class ICommandHandler;
+        virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) = 0;
+        virtual ~ICommandHandler() = default;
+    };
 
+    template<>
+    class Impl<View> : public Reactor::IEventHandler
+    {
     public:
-        ViewImpl(std::wstring_view class_name, View & m_view, Reactor & reactor);
-        ~ViewImpl();
+        Impl(std::wstring_view class_name, View & m_view, Reactor & reactor);
+        ~Impl();
 
         void Close();
 
@@ -35,16 +40,9 @@ namespace views_service::controls
         int get_control_id();
 
     private:
-        std::map<int, std::reference_wrapper<ViewImpl::ICommandHandler>> m_controls;
+        std::map<int, std::reference_wrapper<ICommandHandler>> m_controls;
         WindowHandle m_handle;
         View & m_view;
         int m_id;
-    };
-
-    class ViewImpl::ICommandHandler
-    {
-    public:
-        virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) = 0;
-        virtual ~ICommandHandler() = default;
     };
 }

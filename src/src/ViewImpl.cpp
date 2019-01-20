@@ -12,18 +12,18 @@ View::~View() = default;
 
 void View::Close()
 {
-    if (!m_impl) {
+    if (!getImpl()) {
         throw std::exception();
     }
-    m_impl->Close();
+    getImpl()->Close();
 }
 
-void View::setImpl(std::unique_ptr<ViewImpl> && impl)
+void Base<View>::setImpl(std::unique_ptr<Impl<View>> && impl)
 {
     m_impl = std::move(impl);
 }
 
-ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor) :
+Impl<View>::Impl(std::wstring_view class_name, View & view, Reactor & reactor) :
     IEventHandler(reactor),
     m_view(view),
     m_id(0)
@@ -48,7 +48,7 @@ ViewImpl::ViewImpl(std::wstring_view class_name, View & view, Reactor & reactor)
     }
 }
 
-ViewImpl::~ViewImpl()
+Impl<View>::~Impl()
 {
     for (auto& variant : m_view) {
         std::visit([](auto& control) {
@@ -58,12 +58,12 @@ ViewImpl::~ViewImpl()
     }
 }
 
-void ViewImpl::Close()
+void Impl<View>::Close()
 {
     PostMessageW(m_handle, WM_CLOSE, 0, 0);
 }
 
-LRESULT ViewImpl::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT Impl<View>::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
         HANDLE_MSG(hWnd, WM_CLOSE,   onClose);
@@ -74,23 +74,23 @@ LRESULT ViewImpl::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
 }
 
-void ViewImpl::onCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+void Impl<View>::onCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     m_controls.at(id).get().OnCommand(hwnd, id, hwndCtl, codeNotify);
 }
 
-void ViewImpl::onClose(HWND hwnd)
+void Impl<View>::onClose(HWND hwnd)
 {
     // ~WindowClass -> DestroyWindow -> Reactor::WndProc -> Reactor::onEvent -> ViewImpl::onDestroy
     m_handle = nullptr;
 }
 
-void ViewImpl::onDestroy(HWND hwnd)
+void Impl<View>::onDestroy(HWND hwnd)
 {
     m_view.setImpl(nullptr);
 }
 
-BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+BOOL Impl<View>::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     for (auto& control : m_view) {
         std::visit(
@@ -105,7 +105,7 @@ BOOL ViewImpl::onCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     return true;
 }
 
-int ViewImpl::get_control_id()
+int Impl<View>::get_control_id()
 {
     return m_id++;
 }

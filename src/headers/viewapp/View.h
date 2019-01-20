@@ -6,14 +6,13 @@
 #include <list>
 #include <variant>
 
+#include "Properties.h"
 #include "Button.h"
 #include "Edit.h"
 
 namespace views_service::controls
 {
-    class ViewImpl;
-
-    class View
+    class View : public Base<View>
     {
     public:
         View();
@@ -42,66 +41,6 @@ namespace views_service::controls
         void Close();
 
         /**
-         * Position property
-         */
-        View & setPosition(unsigned x_pos, unsigned y_pos)
-        {
-            m_x_position = x_pos;
-            m_y_position = y_pos;
-            return *this;
-        }
-
-        const std::optional<unsigned> & getXPosition() const
-        {
-            return m_x_position;
-        }
-
-        const std::optional<unsigned> & getYPosition() const
-        {
-            return m_y_position;
-        }
-
-        /**
-         * Size property
-         */
-        View & setSize(unsigned width, unsigned height)
-        {
-            m_width = width;
-            m_height = height;
-            return *this;
-        }
-
-        const std::optional<unsigned> & getWidth() const
-        {
-            return m_width;
-        }
-
-        const std::optional<unsigned> & getHeight() const
-        {
-            return m_height;
-        }
-
-        /**
-         * Text property
-         */
-        View & setText(const std::string & text)
-        {
-            m_text = std::wstring(text.begin(), text.end());
-            return *this;
-        }
-
-        View & setText(std::wstring text)
-        {
-            m_text = text;
-            return *this;
-        }
-
-        const std::optional<std::wstring> & getText() const
-        {
-            return m_text;
-        }
-
-        /**
          * Child controls
          */
         auto begin()
@@ -114,23 +53,7 @@ namespace views_service::controls
             return m_controls.end();
         }
 
-        /**
-         * Implementation
-         */
-        void setImpl(std::unique_ptr<ViewImpl> &&);
-
-        ViewImpl* getImpl()
-        {
-            return m_impl.get();
-        }
-
     private:
-        std::unique_ptr<ViewImpl> m_impl;
-        std::optional<unsigned> m_width;
-        std::optional<unsigned> m_height;
-        std::optional<unsigned> m_x_position;
-        std::optional<unsigned> m_y_position;
-        std::optional<std::wstring> m_text;
         std::list<std::variant<Button, Edit>> m_controls;
     };
 }
