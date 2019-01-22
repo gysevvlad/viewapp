@@ -60,6 +60,9 @@ int Reactor::handleEvents()
     MSG message;
     int ret;
     while (ret = GetMessageW(&message, nullptr, 0, 0)) {
+        if (message.message == CB_ADDSTRING) {
+            throw;
+        }
         if (ret == -1) {
             throw std::runtime_error(getLastErrorMessage("GetMessageW(...)"));
         }

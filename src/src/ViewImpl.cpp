@@ -78,7 +78,9 @@ LRESULT Impl<View>::onEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 void Impl<View>::onCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    m_controls.at(id).get().OnCommand(hwnd, id, hwndCtl, codeNotify);
+    if (auto it = m_controls.find(id); it != m_controls.end()) {
+        it->second.get().OnCommand(hwnd, id, hwndCtl, codeNotify);
+    }
 }
 
 void Impl<View>::onClose(HWND hwnd)

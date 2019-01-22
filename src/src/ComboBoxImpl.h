@@ -13,6 +13,8 @@ namespace views_service::controls
 
         virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) override;
 
+        void addItem(std::wstring_view item);
+
     private:
         ComboBox & m_combo_box;
         WindowHandle m_handle;
