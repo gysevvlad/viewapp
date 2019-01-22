@@ -9,6 +9,7 @@
 #include "Properties.h"
 #include "Button.h"
 #include "Edit.h"
+#include "ComboBox.h"
 
 namespace views_service::controls
 {
@@ -27,12 +28,20 @@ namespace views_service::controls
             return std::get<Button>(m_controls.emplace_back(Button()));
         }
 
-        /*
+        /**
          * Create edit control
          */
         Edit & createEdit()
         {
             return std::get<Edit>(m_controls.emplace_back(Edit()));
+        }
+
+        /**
+         * Create combobox control
+         */
+        ComboBox & createComboBox()
+        {
+            return std::get<ComboBox>(m_controls.emplace_back(ComboBox()));
         }
 
         /**
@@ -54,6 +63,6 @@ namespace views_service::controls
         }
 
     private:
-        std::list<std::variant<Button, Edit>> m_controls;
+        std::list<std::variant<Button, Edit, ComboBox>> m_controls;
     };
 }

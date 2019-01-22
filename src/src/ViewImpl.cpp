@@ -3,6 +3,7 @@
 #include "ViewImpl.h"
 #include "ButtonImpl.h"
 #include "EditImpl.h"
+#include "ComboBoxImpl.h"
 
 using namespace views_service::controls;
 
