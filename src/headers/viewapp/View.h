@@ -10,6 +10,7 @@
 #include "Button.h"
 #include "Edit.h"
 #include "ComboBox.h"
+#include "ListBox.h"
 
 namespace views_service::controls
 {
@@ -45,6 +46,14 @@ namespace views_service::controls
         }
 
         /**
+         * Create listbox control
+         */
+        ListBox & createListBox()
+        {
+            return std::get<ListBox>(m_controls.emplace_back(ListBox()));
+        }
+
+        /**
          * Close window
          */
         void Close();
@@ -63,6 +72,6 @@ namespace views_service::controls
         }
 
     private:
-        std::list<std::variant<Button, Edit, ComboBox>> m_controls;
+        std::list<std::variant<Button, Edit, ComboBox, ListBox>> m_controls;
     };
 }
