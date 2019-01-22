@@ -6,26 +6,30 @@ int main()
 
     auto & view = service.createView()
         .setPosition(100, 100)
-        .setSize(200, 195)
+        .setSize(250, 195)
         .setText("app");
 
-    auto & edit = view.createEdit()
-        .setPosition(10, 10)
-        .setSize(180, 25)
-        .setText("edit: ");
-
     auto & combobox = view.createComboBox()
-        .setPosition(10, 70)
-        .setSize(180, 25)
-        .setText("combobox");
+        .setPosition(10, 10)
+        .setSize(180, 180)
+        .setText("");
 
-    auto & button = view.createButton()
-        .setPosition(10, 40)
-        .setSize(180, 25)
-        .setText("close")
+    auto & add = view.createButton()
+        .setPosition(195, 10)
+        .setSize(45, 25)
+        .setText("add")
         .setClickHandler(
             [&combobox]() {
-                combobox.addItems({ "1", "2", "3", "4" });
+                combobox.addItem(combobox.getInputText());
+            });
+
+    auto & del = view.createButton()
+        .setPosition(195, 40)
+        .setSize(45, 25)
+        .setText("del")
+        .setClickHandler(
+            [&combobox]() {
+                combobox.eraseItem(combobox.getSelectedItem());
             });
 
     return service.run();
