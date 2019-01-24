@@ -6,11 +6,18 @@ int main()
 
     auto & view = service.createView()
         .setPosition(100, 100)
-        .setSize(250, 195)
+        .setSize(250, 225)
         .setText("app");
 
-    auto & combobox = view.createComboBox()
+    auto & combobox1 = view.createComboBox()
+        .useDropDownType()
         .setPosition(10, 10)
+        .setSize(180, 180)
+        .setText("");
+
+    auto & combobox2 = view.createComboBox()
+        .useSimpleType()
+        .setPosition(10, 40)
         .setSize(180, 180)
         .setText("");
 
@@ -19,8 +26,9 @@ int main()
         .setSize(45, 25)
         .setText("add")
         .setClickHandler(
-            [&combobox]() {
-                combobox.addItem(combobox.getInputText());
+            [&combobox1, &combobox2]() {
+                combobox1.addItem(combobox1.getInputText());
+                combobox2.addItem(combobox1.getInputText());
             });
 
     auto & del = view.createButton()
@@ -28,8 +36,10 @@ int main()
         .setSize(45, 25)
         .setText("del")
         .setClickHandler(
-            [&combobox]() {
-                combobox.eraseItem(combobox.getSelectedItem());
+            [&combobox1, &combobox2]() {
+                std::wstring selected{ combobox1.getSelectedItem() };
+                combobox1.eraseItem(selected);
+                combobox2.eraseItem(selected);
             });
 
     return service.run();

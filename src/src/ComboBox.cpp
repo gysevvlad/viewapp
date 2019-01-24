@@ -11,7 +11,6 @@ void Base<ComboBox>::setImpl(std::unique_ptr<Impl<ComboBox>> && impl)
     m_impl = std::move(impl);
 }
 
-
 ComboBox & ComboBox::addItem(std::wstring && item)
 {
     if (!item.empty()) {
@@ -57,7 +56,6 @@ std::wstring_view ComboBox::getSelectedItem()
             return *std::next(m_items.begin(), index);
         }
     }
-
     return {};
 }
 
@@ -87,9 +85,11 @@ std::wstring Impl<ComboBox>::getInputText()
 Impl<ComboBox>::Impl(ComboBox & combo_box, HWND parent, int id) :
     m_combo_box(combo_box)
 {
+    int type = m_combo_box.getType() == ComboBox::Type::DROP_DONW ? CBS_DROPDOWN : CBS_SIMPLE;
+
     m_handle = CreateWindowW(L"COMBOBOX",
         m_combo_box.getText().value().data(),
-        WS_VSCROLL | WS_VISIBLE | WS_CHILD | CBS_SIMPLE | CBS_AUTOHSCROLL,
+        WS_VSCROLL | WS_VISIBLE | WS_CHILD | type | CBS_AUTOHSCROLL,
         m_combo_box.getXPosition().value(),
         m_combo_box.getYPosition().value(),
         m_combo_box.getWidth().value(),

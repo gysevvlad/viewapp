@@ -14,13 +14,41 @@ namespace views_service::controls
         ComboBox(ComboBox &&);
         ~ComboBox();
 
+        enum class Type
+        {
+            // Drop down item list
+            DROP_DONW,
+            // Item list shows on static panel
+            SIMPLE
+        };
+
         /**
-         * Adds text item. If text item exists does nothing.
+         * Sets type of combobox.
+         */
+        ComboBox & useDropDownType()
+        {
+            m_type = Type::DROP_DONW;
+            return *this;
+        }
+
+        ComboBox & useSimpleType()
+        {
+            m_type = Type::SIMPLE;
+            return *this;
+        }
+
+        Type getType()
+        {
+            return m_type;
+        }
+
+        /**
+         * Adds text item. If text item exists or is empty does nothing.
          */
         ComboBox & addItem(std::wstring && item);
 
         /**
-         * Remove text item. If text item doesn't exist does nothing.
+         * Remove text item. If text item doesn't exist or is empty does nothing.
          */
         ComboBox & eraseItem(std::wstring_view item);
 
@@ -49,5 +77,6 @@ namespace views_service::controls
 
     private:
         std::list<std::wstring> m_items;
+        Type m_type;
     };
 }
