@@ -32,3 +32,19 @@ void Impl<Edit>::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
 
 }
+
+std::wstring Edit::getInputText()
+{
+    if (getImpl()) {
+        return getImpl()->getInputText();
+    }
+    return {};
+}
+
+std::wstring Impl<Edit>::getInputText()
+{
+    auto length = SendMessageW(m_handle, WM_GETTEXTLENGTH, 0, 0);
+    std::unique_ptr<wchar_t[]> buffer(new wchar_t[length + 1]);
+    SendMessageW(m_handle, WM_GETTEXT, sizeof(buffer), LPARAM(buffer.get()));
+    return { buffer.get() };
+}

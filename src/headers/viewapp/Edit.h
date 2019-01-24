@@ -10,5 +10,7 @@ namespace views_service::controls
         Edit();
         Edit(Edit && edit);
         ~Edit();
+
+        std::wstring getInputText();
     };
 }

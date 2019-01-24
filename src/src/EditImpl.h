@@ -13,6 +13,8 @@ namespace views_service::controls
 
         virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) override;
 
+        std::wstring getInputText();
+
     private:
         Edit & m_edit;
         WindowHandle m_handle;
